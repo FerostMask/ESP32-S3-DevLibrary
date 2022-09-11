@@ -1,3 +1,5 @@
 \build
+\components
 \esp_idf_components
 \.settings
+\.vscode
