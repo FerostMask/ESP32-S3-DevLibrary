@@ -21,12 +21,13 @@ typedef struct
 {
     en_gpio_num_t ioNum;
     en_gpio_mode_t mode;
+    en_gpio_pull_mode_t pullMode;
 } stc_gpio_config_t;
 //?------------------------------------------------------------------------------
 //? Function declarations
 void drv_gpio_set_level(en_gpio_num_t ioNum, uint32_t level);
 int drv_gpio_get_level(en_gpio_num_t ioNum);
-void drv_gpio_init(stc_gpio_config_t * const config);
+void drv_gpio_init(const stc_gpio_config_t * const config);
 
 #endif
 

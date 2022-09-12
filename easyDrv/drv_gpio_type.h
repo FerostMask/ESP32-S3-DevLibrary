@@ -68,6 +68,22 @@ typedef enum {
 } en_gpio_num_t;
 
 /**
+ * @brief: GPIO上下拉模式
+ */
+/** @cond */
+#define MACR_GPIO_FLOATING          (0)     //< 浮空输入
+#define MACR_GPIO_PULLUP            (BIT0)  //< 管脚上拉
+#define MACR_GPIO_PULLDOWN          (BIT1)  //< 管脚下拉
+/** @endcond */
+typedef enum
+{
+    IO_FLOATING = MACR_GPIO_FLOATING,                           //< 管脚浮空
+    IO_PULLUP_ONLY = MACR_GPIO_PULLUP,                          //< 管脚上拉
+    IO_PULLDOWN_ONLY = MACR_GPIO_PULLDOWN,                      //< 管脚下拉
+    IO_PULLUP_PULLDOWN = MACR_GPIO_PULLUP | MACR_GPIO_PULLDOWN, //< 管脚同时上拉和下拉
+} en_gpio_pull_mode_t;
+
+/**
  * @brief: GPIO模式
  */
 /** @cond */

@@ -22,7 +22,7 @@ typedef struct {
 stc_gpio_context_t _gpio_hw = {
     .dev = DRV_GPIO_GET_HW(MACR_IO_PORT_0)
 };
-stc_gpio_context_t *gpio_hw = &_gpio_hw;
+stc_gpio_context_t *gpio_hw = &_gpio_hw; // GPIO硬件地址（猜测）
 
 //?------------------------------------------------------------------------------
 //? Function declarations
@@ -68,9 +68,9 @@ int drv_gpio_get_level(en_gpio_num_t ioNum)
  * @author:  吉平.「集」
  * @date:    2022-09-12
  */
-void drv_gpio_init(stc_gpio_config_t * const config)
+void drv_gpio_init(const stc_gpio_config_t * const config)
 {
-    // 设置端口输入
+    // 设置管脚输入
     if(config->mode & MACR_GPIO_MODE_INPUT)
     {
         gpio_hal_input_enable(gpio_hw, config->ioNum);
@@ -79,7 +79,8 @@ void drv_gpio_init(stc_gpio_config_t * const config)
     {
         gpio_hal_input_disable(gpio_hw, config->ioNum);
     }
-    // 设置端口输出
+
+    // 设置管脚输出
     if(config->mode & MACR_GPIO_MODE_OUTPUT)
     {
         gpio_hal_output_enable(gpio_hw, config->ioNum);
@@ -88,7 +89,8 @@ void drv_gpio_init(stc_gpio_config_t * const config)
     {
         gpio_hal_output_disable(gpio_hw, config->ioNum);
     }
-    // 设置端口输出模式
+
+    // 设置管脚输出模式
     if(config->mode & MACR_GPIO_MODE_OD)
     {
         gpio_hal_od_enable(gpio_hw, config->ioNum);
@@ -97,7 +99,26 @@ void drv_gpio_init(stc_gpio_config_t * const config)
     {
         gpio_hal_od_disable(gpio_hw, config->ioNum);
     }
-    
+
+    // 设置管脚上拉
+    if(config->pullMode & MACR_GPIO_PULLUP)
+    {
+        gpio_hal_pullup_en(gpio_hw, config->ioNum);
+    }
+    else
+    {
+        gpio_hal_pullup_dis(gpio_hw, config->ioNum);
+    }
+
+    // 设置管脚下拉
+    if(config->pullMode & MACR_GPIO_PULLDOWN)
+    {
+        gpio_hal_pulldown_en(gpio_hw, config->ioNum);
+    }
+    else
+    {
+        gpio_hal_pulldown_dis(gpio_hw, config->ioNum);
+    }
 }
 //?------------------------------------------------------------------------------
 //? End of file
