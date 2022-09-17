@@ -6,36 +6,6 @@
 
 #include "driver/rmt.h"
 
-static const rmt_item32_t morse_esp[] = {
-	// E : dot
-	{{{ 3, 1, 9, 0 }}}, // 1
-	{{{ 3, 1, 9, 0 }}}, // 1
-    {{{ 3, 1, 9, 0 }}}, // 1aRD
-    {{{ 3, 1, 9, 0 }}}, // 1
-    {{{ 3, 1, 9, 0 }}}, // 1
-    {{{ 3, 1, 9, 0 }}}, // 1
-    {{{ 3, 1, 9, 0 }}}, // 1
-    {{{ 3, 1, 9, 0 }}}, // 1
-    {{{ 3, 1, 9, 0 }}}, // 1
-    {{{ 3, 1, 9, 0 }}}, // 1
-    {{{ 6, 1, 6, 0 }}}, // 1
-    {{{ 6, 1, 6, 0 }}}, // 1
-    {{{ 6, 1, 6, 0 }}}, // 1
-    {{{ 6, 1, 6, 0 }}}, // 1
-    {{{ 6, 1, 6, 0 }}}, // 1
-    {{{ 6, 1, 6, 0 }}}, // 1
-    {{{ 6, 1, 6, 0 }}}, // 1
-    {{{ 6, 1, 6, 0 }}}, // 1
-    {{{ 6, 1, 6, 0 }}}, // 1
-    {{{ 6, 1, 6, 0 }}}, // 1
-    {{{ 6, 1, 6, 0 }}}, // 1
-    {{{ 6, 1, 6, 0 }}}, // 1
-    {{{ 6, 1, 6, 0 }}}, // 1
-    {{{ 6, 1, 6, 0 }}}, // 1
-	// RMT end marker
-	{{{ 0, 1, 0, 0 }}}
-};
-
 void rmt_tx_init(void)
 {
     rmt_config_t rmt =
@@ -56,12 +26,93 @@ void rmt_tx_init(void)
     rmt_driver_install(RMT_CHANNEL_0, 0, 0);
 }
 
+/**
+ * @brief:   设置SK6812灯珠颜色
+ * @param:   color: 颜色的RGB值
+ * @return:  none
+ * @example: sk6812_set_color(0xFFFFFF); // 设置灯珠为白色
+ * @author:  吉平.「集」
+ * @date:    2022-09-17
+ */
+#define COLOR_ENCODING_GREEN_LSB_INDEX  7
+#define COLOR_ENCODING_RED_LSB_INDEX    15
+#define COLOR_ENCODING_BLUE_LSB_INDEX   23
+void sk6812_set_color(uint32_t color)
+{
+    uint8_t red = (color >> 16) & 0xFF;
+    uint8_t green = (color >> 8) & 0xFF;
+    uint8_t blue = color & 0xFF;
+    rmt_item32_t color_encoding[] = {
+		{{{ 3, 1, 9, 0 }}}, // G7
+		{{{ 3, 1, 9, 0 }}}, // G6
+		{{{ 3, 1, 9, 0 }}}, // G5
+		{{{ 3, 1, 9, 0 }}}, // G4
+		{{{ 3, 1, 9, 0 }}}, // G3
+		{{{ 3, 1, 9, 0 }}}, // G2
+		{{{ 3, 1, 9, 0 }}}, // G1
+		{{{ 3, 1, 9, 0 }}}, // G0
+		{{{ 3, 1, 9, 0 }}}, // R7
+		{{{ 3, 1, 9, 0 }}}, // R6
+		{{{ 3, 1, 9, 0 }}}, // R5
+		{{{ 3, 1, 9, 0 }}}, // R4
+		{{{ 3, 1, 9, 0 }}}, // R3
+		{{{ 3, 1, 9, 0 }}}, // R2
+		{{{ 3, 1, 9, 0 }}}, // R1
+		{{{ 3, 1, 9, 0 }}}, // R0
+		{{{ 3, 1, 9, 0 }}}, // B7
+		{{{ 3, 1, 9, 0 }}}, // B6
+		{{{ 3, 1, 9, 0 }}}, // B5
+		{{{ 3, 1, 9, 0 }}}, // B4
+		{{{ 3, 1, 9, 0 }}}, // B3
+		{{{ 3, 1, 9, 0 }}}, // B2
+		{{{ 3, 1, 9, 0 }}}, // B1
+		{{{ 3, 1, 9, 0 }}}, // B0
+		// RMT end marker
+		{{{ 0, 1, 0, 0 }}}
+    };
+    rmt_item32_t bit_one = {{{6, 1, 6, 0}}};
+
+    // Set Red
+    for(int i = 7; i >= 0; i--)
+    {
+        if((red >> i) & 0x01)
+        {
+            color_encoding[COLOR_ENCODING_RED_LSB_INDEX - i] = bit_one;
+        }
+    }
+
+    // Set Green
+    for(int i = 7; i >= 0; i--)
+    {
+        if((green >> i) & 0x01)
+        {
+            color_encoding[COLOR_ENCODING_GREEN_LSB_INDEX - i] = bit_one;
+        }
+    }
+
+    // Set Blue
+    for(int i = 7; i >= 0; i--)
+    {
+        if((blue >> i) & 0x01)
+        {
+            color_encoding[COLOR_ENCODING_BLUE_LSB_INDEX - i] = bit_one;
+        }
+    }
+
+    rmt_write_items(RMT_CHANNEL_0, color_encoding, sizeof(color_encoding) / sizeof(color_encoding[0]), true);
+}
+
 void app_main(void)
 {
+	uint32_t color_code = 0;
     rmt_tx_init();
     while (true) {
-        printf("Hello from app_main!\n");
-        sleep(1);
-        rmt_write_items(RMT_CHANNEL_0, morse_esp, sizeof(morse_esp) / sizeof(morse_esp[0]), true);
+        usleep(20000);
+        sk6812_set_color(0xffb5c5);
+        ++color_code;
+        if(color_code > 0xFFFFFF)
+        {
+        	color_code = 0;
+        }
     }
 }
