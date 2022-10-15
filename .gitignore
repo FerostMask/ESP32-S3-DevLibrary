@@ -3,3 +3,5 @@
 \esp_idf_components
 \.settings
 \.vscode
+
+*.bkp
